@@ -5,3 +5,4 @@ scratch_docling/
 scratch_unstructure/
 scratch_pymupdf4llm/
 storage/
+__pycache__/
