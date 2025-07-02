@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  flask-backend:
+    image: flask-backend
+    build: 
+      context: ./flask_backend
+      dockerfile: Dockerfile
+    ports:
+      - "5050:5050"
+    environment:
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - OLLAMA_HOST=ollama
+      - OLLAMA_PORT=11434
+    volumes:
+      - ./flask_backend/uploads:/app/uploads
+      - ./flask_backend/figure_storage:/app/figure_storage
+    depends_on:
+      - qdrant
+      - ollama
+    networks:
+      - app-network
+
+  frontend:
+    image: rag-frontend
+    build:
+      context: ./rag_deployment
+      dockerfile: Dockerfile
+      args:
+        #REACT_APP_API_URL: http://flask-backend:5050
+        REACT_APP_API_URL: http://localhost:5050
+
+    ports:
+      - "3000:3000"
+    #environment:
+    #  - REACT_APP_API_URL=http://flask-backend:5050
+    depends_on:
+      - flask-backend
+    networks:
+      - app-network
+
+  qdrant:
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - app-network
+
+  ollama:
+    image: ollama/ollama
+    ports:
+    - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./Modelfile-deepseek7b:/Modelfile-deepseek7b
+      - ./Modelfile-deepseek14b:/Modelfile-deepseek14b
+    networks:
+      - app-network
+    #entrypoint: sh
+    #command: >
+    #  -c "ollama serve & 
+    #  sleep 3 &&
+    #  ollama pull bge-m3 &&
+    #  ollama create deepseek7b-128k -f /Modelfile-deepseek7b && 
+    #  ollama create deepseek14b-128k -f /Modelfile-deepseek14b && 
+    #  wait"
+  
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  qdrant_data:
+  ollama_data: 
