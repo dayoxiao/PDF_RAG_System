@@ -12,7 +12,7 @@ from routes.knowledgeBases import kb_bp
 from routes.knowledgeBasesDoc import docKB_bp
 from routes.staticFiles import static_bp
 
-from .routes.util.qdrant_util import qdrant_DBConnector
+from routes.util.qdrant_util import qdrant_DBConnector
 vector_db = qdrant_DBConnector("預設向量數據庫", recreate=False)
 
 app = Flask(__name__)

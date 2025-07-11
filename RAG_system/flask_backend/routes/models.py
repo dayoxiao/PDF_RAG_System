@@ -9,7 +9,16 @@ models_bp = Blueprint('models', __name__)
 @models_bp.route('/api/models', methods=['GET'])
 def get_models():
     try:
-        ollama_host = os.getenv('OLLAMA_HOST', 'ollama')
+        # 檢查是否在 Docker 環境中運行
+        import socket
+        try:
+            socket.gethostbyname('ollama')
+            # 如果在 Docker 環境中，使用 ollama 主機名
+            ollama_host = os.getenv('OLLAMA_HOST', 'ollama')
+        except socket.gaierror:
+            # 如果在本地開發環境中，使用 localhost
+            ollama_host = os.getenv('OLLAMA_HOST', 'localhost')
+        
         ollama_port = int(os.getenv('OLLAMA_PORT', 11434))
         base_url = f"http://{ollama_host}:{ollama_port}"
         client = ollama.Client(host=base_url)

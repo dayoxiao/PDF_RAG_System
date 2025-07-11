@@ -6,3 +6,7 @@ scratch_unstructure/
 scratch_pymupdf4llm/
 storage/
 __pycache__/
+.env
+
+figure_storage/
+uploads/

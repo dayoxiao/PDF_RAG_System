@@ -11,7 +11,15 @@ def get_kbs(collection_name):
     try:
         kb_name_list = {"knowledge_bases":[]}
         # 連接到Qdrant
-        qdrant_host = os.getenv('QDRANT_HOST', 'qdrant')
+        import socket
+        try:
+            socket.gethostbyname('qdrant')
+            # 如果在 Docker 環境中，使用 qdrant 主機名
+            qdrant_host = os.getenv('QDRANT_HOST', 'qdrant')
+        except socket.gaierror:
+            # 如果在本地開發環境中，使用 localhost
+            qdrant_host = os.getenv('QDRANT_HOST', 'localhost')
+        
         qdrant_port = int(os.getenv('QDRANT_PORT', 6333))
         qdrant_client = QdrantClient(f"http://{qdrant_host}:{qdrant_port}") 
         #qdrant_client = QdrantClient("http://localhost:6333") 

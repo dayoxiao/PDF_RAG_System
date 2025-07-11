@@ -7,7 +7,16 @@ import os
 
 class qdrant_DBConnector:
     def __init__(self, collection_name, recreate=False):#, embedding_fn):
-        qdrant_host = os.getenv('QDRANT_HOST', 'qdrant')
+        # 檢查是否在 Docker 環境中運行
+        import socket
+        try:
+            socket.gethostbyname('qdrant')
+            # 如果在 Docker 環境中，使用 qdrant 主機名
+            qdrant_host = os.getenv('QDRANT_HOST', 'qdrant')
+        except socket.gaierror:
+            # 如果在本地開發環境中，使用 localhost
+            qdrant_host = os.getenv('QDRANT_HOST', 'localhost')
+        
         qdrant_port = int(os.getenv('QDRANT_PORT', 6333))
         self.qdrant_client = QdrantClient(f"http://{qdrant_host}:{qdrant_port}")
         #self.qdrant_client = QdrantClient("http://localhost:6333")

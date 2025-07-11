@@ -4,7 +4,16 @@ from sentence_transformers import CrossEncoder
 import os
 
 def get_ollama_client():
-    ollama_host = os.getenv('OLLAMA_HOST', 'ollama')
+    # 檢查是否在 Docker 環境中運行
+    import socket
+    try:
+        socket.gethostbyname('ollama')
+        # 如果在 Docker 環境中，使用 ollama 主機名
+        ollama_host = os.getenv('OLLAMA_HOST', 'ollama')
+    except socket.gaierror:
+        # 如果在本地開發環境中，使用 localhost
+        ollama_host = os.getenv('OLLAMA_HOST', 'localhost')
+    
     ollama_port = int(os.getenv('OLLAMA_PORT', 11434))
     base_url = f"http://{ollama_host}:{ollama_port}"
     return ollama.Client(host=base_url)
